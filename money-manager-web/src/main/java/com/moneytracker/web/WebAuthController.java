@@ -22,7 +22,8 @@ public class WebAuthController {
     }
 
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginForm(@RequestParam(defaultValue = "login") String mode, Model model) {
+        setMode(model, mode);
         return "login";
     }
 
@@ -35,6 +36,7 @@ public class WebAuthController {
                 .map(user -> startSession(user, session))
                 .orElseGet(() -> {
                     model.addAttribute("error", "Invalid username or password.");
+                    setMode(model, "login");
                     return "login";
                 });
     }
@@ -42,14 +44,36 @@ public class WebAuthController {
     @PostMapping("/register")
     public String register(@RequestParam String username,
                            @RequestParam String password,
+                           @RequestParam String confirmPassword,
+                           @RequestParam String recoveryCode,
                            HttpSession session,
                            Model model) {
         try {
-            User user = authService.register(username, password);
+            User user = authService.register(username, password, confirmPassword, recoveryCode);
             return startSession(user, session);
         } catch (IllegalArgumentException ex) {
             model.addAttribute("error", ex.getMessage());
-            model.addAttribute("registerMode", true);
+            model.addAttribute("submittedUsername", username);
+            setMode(model, "register");
+            return "login";
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String username,
+                                 @RequestParam String recoveryCode,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Model model) {
+        try {
+            authService.resetPassword(username, recoveryCode, newPassword, confirmPassword);
+            model.addAttribute("message", "Password reset complete. Sign in with your new password.");
+            setMode(model, "login");
+            return "login";
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("submittedUsername", username);
+            setMode(model, "forgot");
             return "login";
         }
     }
@@ -64,5 +88,13 @@ public class WebAuthController {
         session.setAttribute(SESSION_USER_ID, user.getUserId());
         session.setAttribute(SESSION_USERNAME, user.getUsername());
         return "redirect:/";
+    }
+
+    private void setMode(Model model, String requestedMode) {
+        String mode = switch (requestedMode) {
+            case "register", "forgot" -> requestedMode;
+            default -> "login";
+        };
+        model.addAttribute("authMode", mode);
     }
 }

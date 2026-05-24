@@ -2,8 +2,11 @@ CREATE TABLE IF NOT EXISTS users (
     user_id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    recovery_code_hash TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS recovery_code_hash TEXT;
 
 CREATE TABLE IF NOT EXISTS transactions (
     transaction_id BIGSERIAL PRIMARY KEY,

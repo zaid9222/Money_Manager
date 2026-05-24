@@ -11,4 +11,7 @@ public interface IUserRepo {
 
     /** Find a user by username, or empty if not found. */
     Optional<User> findByUsername(String username);
+
+    /** Persist a new password hash for an existing user. */
+    void updatePassword(long userId, String passwordHash);
 }

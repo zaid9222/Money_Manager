@@ -3,44 +3,109 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Money Manager</title>
+    <title>Account Access - Money Manager</title>
     <link rel="stylesheet" th:href="@{/web.css}">
 </head>
 <body class="auth-page">
 <main class="auth-shell">
-    <section class="auth-panel">
-        <h1>Money Manager</h1>
-        <p class="muted">Sign in or create an account.</p>
+    <section class="auth-story" aria-label="Money Manager introduction">
+        <a class="brand brand-light" href="/">Money Manager</a>
+        <p class="eyebrow">Personal finance workspace</p>
+        <h1>Confidence for every financial decision.</h1>
+        <p class="story-copy">Track cash flow, understand spending, and keep your monthly plan in one calm, private workspace.</p>
+        <div class="feature-list">
+            <div>
+                <strong>Monthly visibility</strong>
+                <span>Income, expenses, and available balance at a glance.</span>
+            </div>
+            <div>
+                <strong>Clear history</strong>
+                <span>Record and review transactions with simple categories.</span>
+            </div>
+            <div>
+                <strong>Protected recovery</strong>
+                <span>Your private recovery code is required to reset access.</span>
+            </div>
+        </div>
+    </section>
 
+    <section class="auth-card">
+        <div class="auth-card-header">
+            <p class="eyebrow">Welcome</p>
+            <h2 th:if="${authMode == 'login'}">Sign in to your account</h2>
+            <h2 th:if="${authMode == 'register'}">Create your account</h2>
+            <h2 th:if="${authMode == 'forgot'}">Reset your password</h2>
+            <p class="muted" th:if="${authMode == 'login'}">Continue managing your money securely.</p>
+            <p class="muted" th:if="${authMode == 'register'}">Start with an account and a private recovery code.</p>
+            <p class="muted" th:if="${authMode == 'forgot'}">Enter the recovery code chosen when you registered.</p>
+        </div>
+
+        <nav class="auth-tabs" aria-label="Account actions">
+            <a th:href="@{/login(mode='login')}"
+               th:classappend="${authMode == 'login'} ? ' active' : ''">Sign in</a>
+            <a th:href="@{/login(mode='register')}"
+               th:classappend="${authMode == 'register'} ? ' active' : ''">Create account</a>
+        </nav>
+
+        <div class="alert success" th:if="${message}" th:text="${message}"></div>
         <div class="alert error" th:if="${error}" th:text="${error}"></div>
 
-        <div class="auth-grid">
-            <form method="post" action="/login" class="stack">
-                <h2>Login</h2>
-                <label>
-                    Username
-                    <input name="username" autocomplete="username" required>
-                </label>
-                <label>
-                    Password
-                    <input name="password" type="password" autocomplete="current-password" required>
-                </label>
-                <button type="submit">Login</button>
-            </form>
+        <form th:if="${authMode == 'login'}" method="post" action="/login" class="stack auth-form">
+            <label>
+                Username
+                <input name="username" th:value="${submittedUsername}" autocomplete="username" maxlength="50" placeholder="Enter your username" required autofocus>
+            </label>
+            <label>
+                Password
+                <input name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            </label>
+            <div class="auth-meta">
+                <a class="text-link" th:href="@{/login(mode='forgot')}">Forgot password?</a>
+            </div>
+            <button type="submit">Sign in</button>
+        </form>
 
-            <form method="post" action="/register" class="stack">
-                <h2>Register</h2>
-                <label>
-                    Username
-                    <input name="username" autocomplete="username" required>
-                </label>
-                <label>
-                    Password
-                    <input name="password" type="password" autocomplete="new-password" minlength="4" required>
-                </label>
-                <button type="submit" class="secondary">Create Account</button>
-            </form>
-        </div>
+        <form th:if="${authMode == 'register'}" method="post" action="/register" class="stack auth-form">
+            <label>
+                Username
+                <input name="username" th:value="${submittedUsername}" autocomplete="username" maxlength="50" placeholder="Choose a username" required autofocus>
+            </label>
+            <label>
+                Password
+                <input name="password" type="password" autocomplete="new-password" minlength="4" placeholder="Minimum 4 characters" required>
+            </label>
+            <label>
+                Confirm password
+                <input name="confirmPassword" type="password" autocomplete="new-password" minlength="4" placeholder="Repeat your password" required>
+            </label>
+            <label>
+                Private recovery code
+                <input name="recoveryCode" type="password" autocomplete="off" minlength="6" placeholder="Minimum 6 characters" required>
+                <span class="field-note">Keep this code safe. It is needed if you forget your password.</span>
+            </label>
+            <button type="submit">Create account</button>
+        </form>
+
+        <form th:if="${authMode == 'forgot'}" method="post" action="/forgot-password" class="stack auth-form">
+            <label>
+                Username
+                <input name="username" th:value="${submittedUsername}" autocomplete="username" maxlength="50" placeholder="Enter your username" required autofocus>
+            </label>
+            <label>
+                Recovery code
+                <input name="recoveryCode" type="password" autocomplete="off" placeholder="Your private recovery code" required>
+            </label>
+            <label>
+                New password
+                <input name="newPassword" type="password" autocomplete="new-password" minlength="4" placeholder="Minimum 4 characters" required>
+            </label>
+            <label>
+                Confirm new password
+                <input name="confirmPassword" type="password" autocomplete="new-password" minlength="4" placeholder="Repeat your new password" required>
+            </label>
+            <button type="submit">Reset password</button>
+            <a class="back-link" th:href="@{/login}">Back to sign in</a>
+        </form>
     </section>
 </main>
 </body>

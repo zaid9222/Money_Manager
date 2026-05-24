@@ -8,48 +8,59 @@
 </head>
 <body>
 <header class="topbar">
-    <a class="brand" href="/">Money Manager</a>
-    <nav>
-        <a href="/" aria-current="page">Dashboard</a>
-        <a href="/transactions">Transactions</a>
-        <form method="post" action="/logout">
-            <button type="submit" class="link-button">Logout</button>
-        </form>
-    </nav>
+    <div class="nav-shell">
+        <a class="brand" href="/">Money Manager</a>
+        <nav aria-label="Primary navigation">
+            <a href="/" aria-current="page">Dashboard</a>
+            <a href="/transactions">Transactions</a>
+        </nav>
+        <div class="nav-account">
+            <span class="user-chip" th:text="${username}">user</span>
+            <form method="post" action="/logout">
+                <button type="submit" class="link-button">Sign out</button>
+            </form>
+        </div>
+    </div>
 </header>
 
 <main class="page">
-    <div class="page-title">
+    <section class="page-hero">
         <div>
+            <p class="eyebrow">Financial overview</p>
             <h1>Dashboard</h1>
-            <p class="muted">Signed in as <span th:text="${username}">user</span></p>
+            <p class="muted">Your current month performance, clearly organized.</p>
         </div>
-        <a class="button" href="/transactions">Add Transaction</a>
-    </div>
+        <a class="button" href="/transactions">Record transaction</a>
+    </section>
 
-    <section class="metric-grid">
-        <article class="metric">
-            <span>Income</span>
+    <section class="metric-grid" aria-label="Monthly totals">
+        <article class="metric income">
+            <span>Monthly income</span>
             <strong th:text="${'$' + snapshot.monthIncome()}">$0</strong>
         </article>
-        <article class="metric">
-            <span>Expenses</span>
+        <article class="metric expense">
+            <span>Monthly expenses</span>
             <strong th:text="${'$' + snapshot.monthExpenses()}">$0</strong>
         </article>
-        <article class="metric">
-            <span>Net Balance</span>
+        <article class="metric balance">
+            <span>Net balance</span>
             <strong th:text="${'$' + snapshot.netBalance()}">$0</strong>
         </article>
-        <article class="metric">
-            <span>Available</span>
+        <article class="metric available">
+            <span>Available to spend</span>
             <strong th:text="${'$' + snapshot.availableBalance()}">$0</strong>
         </article>
     </section>
 
     <section class="content-grid">
         <article class="panel">
-            <h2>Expense Categories</h2>
-            <p class="empty" th:if="${snapshot.categoryBreakdown().isEmpty()}">No expenses this month.</p>
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Spending</p>
+                    <h2>Expense categories</h2>
+                </div>
+            </div>
+            <p class="empty" th:if="${snapshot.categoryBreakdown().isEmpty()}">No expenses recorded this month.</p>
             <table th:if="${!snapshot.categoryBreakdown().isEmpty()}">
                 <thead>
                 <tr><th>Category</th><th class="number">Amount</th></tr>
@@ -57,14 +68,19 @@
                 <tbody>
                 <tr th:each="entry : ${snapshot.categoryBreakdown()}">
                     <td th:text="${entry.key}">Food</td>
-                    <td class="number" th:text="${'$' + entry.value}">$0</td>
+                    <td class="number amount" th:text="${'$' + entry.value}">$0</td>
                 </tr>
                 </tbody>
             </table>
         </article>
 
         <article class="panel">
-            <h2>Six Month Trend</h2>
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Progress</p>
+                    <h2>Six month trend</h2>
+                </div>
+            </div>
             <table>
                 <thead>
                 <tr><th>Month</th><th class="number">Income</th><th class="number">Expenses</th></tr>
@@ -72,8 +88,8 @@
                 <tbody>
                 <tr th:each="trend : ${snapshot.monthlyTrend()}">
                     <td th:text="${trend.month() + '/' + trend.year()}">5/2026</td>
-                    <td class="number" th:text="${'$' + trend.income()}">$0</td>
-                    <td class="number" th:text="${'$' + trend.expenses()}">$0</td>
+                    <td class="number amount income-text" th:text="${'$' + trend.income()}">$0</td>
+                    <td class="number amount" th:text="${'$' + trend.expenses()}">$0</td>
                 </tr>
                 </tbody>
             </table>
